@@ -3,9 +3,17 @@ macro_rules! try_eq {
 }
 
 macro_rules! try_gt {
-    ($e1: expr, $e2: expr) => (if $e1.cmp(&$e2) != Ordering::Greater { return Err(format!("Expected {} > {} (see {}, line {})", $e1, $e2, module_path!(), line!())) })
+    ($e1: expr, $e2: expr) => (if !($e1 > $e2) { return Err(format!("Expected {} > {} (see {}, line {})", $e1, $e2, module_path!(), line!())) })
 }
 
 macro_rules! try_lt {
-    ($e1: expr, $e2: expr) => (if $e1.cmp(&$e2) != Ordering::Less { return Err(format!("Expected {} < {} (see {}, line {})", $e1, $e2, module_path!(), line!())) })
+    ($e1: expr, $e2: expr) => (if !($e1 < $e2) { return Err(format!("Expected {} < {} (see {}, line {})", $e1, $e2, module_path!(), line!())) })
+}
+
+macro_rules! try_geq {
+    ($e1: expr, $e2: expr) => (if $e1 >= $e2 { return Err(format!("Expected {} >= {} (see {}, line {})", $e1, $e2, module_path!(), line!())) })
+}
+
+macro_rules! try_leq {
+    ($e1: expr, $e2: expr) => (if $e1 <= $e2 { return Err(format!("Expected {} <= {} (see {}, line {})", $e1, $e2, module_path!(), line!())) })
 }

@@ -1,5 +1,14 @@
 use std::collections::HashSet;
 
+/// Solve magic squares problem.
+///
+/// Given integer N generate a magic square:
+/// a square array NxN containing integers from 1 to N^2
+/// where sum of each row, each column and each diagonal
+/// is the same.
+///
+/// Hint: use hill climbing.
+
 #[derive(Debug)]
 pub struct MagicSquare {
     pub size: usize,

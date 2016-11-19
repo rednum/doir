@@ -1,5 +1,14 @@
 use std::collections::HashSet;
-use std::cmp::Ordering;
+
+/// Solve N queens problem.
+///
+/// Given integer N generate chessboard containing
+/// N queens such that none pair of queens attacks
+/// each other. The Board datastructure expects
+/// a set of queens positions on the board 
+/// (see tests/queens.rs).
+///
+/// Hint: use hill climbing.
 
 #[derive(Debug)]
 pub struct Board {
@@ -32,35 +41,17 @@ impl Board {
                 rows.insert(&queen.1);
                 se_diagonals.insert(se_d_index(queen, size));
                 ne_diagonals.insert(ne_d_index(queen));
-                if queen.0 >= size || queen.1 >= size {
-                    return Result::Err(format!("Queen position {:?} out of bounds (should have
-                        both coordinates between 0 and {})",
-                                               queen,
-                                               size));
-                }
+                try_lt!(queen.0, size);
+                try_lt!(queen.1, size);
             }
             // check exactly n columns
-            if columns.len() != size {
-                return Result::Err(format!("Expected exactly {} columns, got {}.",
-                                           size,
-                                           columns.len()));
-            }
+            try_eq!(columns.len(), size);
             // check exactly n rows
-            if rows.len() != size {
-                return Result::Err(format!("Expected exactly {} rows, got {}.", size, rows.len()));
-            }
+            try_eq!(rows.len(), size);
             // check exactly n south-east diagionals
-            if se_diagonals.len() != size {
-                return Result::Err(format!("Expected exactly {} south east diagonals, got {}.",
-                                           size,
-                                           se_diagonals.len()));
-            }
+            try_eq!(se_diagonals.len(), size);
             // check exactly n ne_diagonals
-            if ne_diagonals.len() != size {
-                return Result::Err(format!("Expected exactly {} north east diagonals, got {}.",
-                                           size,
-                                           ne_diagonals.len()));
-            }
+            try_eq!(ne_diagonals.len(), size);
         }
         return Result::Ok(Board {
             size: size,
