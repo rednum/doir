@@ -1,0 +1,12 @@
+[package]
+name = "discrete_optimization"
+version = "0.1.0"
+authors = ["Marcin Fatyga <fatygamarcin@gmail.com>"]
+license = "Apache-2.0"
+
+[dependencies]
+rand = "0.3"
+text_io = "0.1.5"
+
+[profile.release]
+debug = false
