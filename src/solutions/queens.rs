@@ -73,7 +73,7 @@ pub fn solve(n: usize) -> Board {
         positions.push(i);
     }
     let between = Range::new(0, n);
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::weak_rng();
 
     for _ in 0..restart_limit {
         se_diagonals.iter_mut().map(|mut x| *x = 0).collect::<Vec<()>>();

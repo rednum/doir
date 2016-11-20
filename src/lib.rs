@@ -4,6 +4,7 @@
 extern crate text_io;
 
 extern crate rand;
+extern crate ndarray;
 extern crate test;
 
 #[macro_use]

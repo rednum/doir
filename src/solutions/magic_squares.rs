@@ -1,6 +1,7 @@
 use rand::distributions::{IndependentSample, Range};
-use rand::{Rng, ThreadRng};
+use rand::{Rng, XorShiftRng};
 use rand;
+use ndarray::{Array2, Array};
 
 use std::cmp::max;
 
@@ -9,7 +10,7 @@ use ::problems::magic_squares::MagicSquare;
 pub fn solve(n: usize) -> MagicSquare {
     let retries = 10_000_000;
     let timeout = n.pow(4) * 5;
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::weak_rng();
 
     for _ in 0..retries {
         let between = Range::new(0, n);
@@ -26,7 +27,7 @@ pub fn solve(n: usize) -> MagicSquare {
             let y1 = between.ind_sample(&mut rng);
             let y2 = between.ind_sample(&mut rng);
 
-            let new_score = swap_nubmers(x1,
+            let new_score = swap_numbers(x1,
                                          y1,
                                          x2,
                                          y2,
@@ -54,7 +55,7 @@ pub fn solve(n: usize) -> MagicSquare {
                 break;
             }
             // undo swap
-            score = swap_nubmers(x1,
+            score = swap_numbers(x1,
                                  y1,
                                  x2,
                                  y2,
@@ -70,11 +71,11 @@ pub fn solve(n: usize) -> MagicSquare {
 }
 
 
-fn swap_nubmers(x1: usize,
+fn swap_numbers(x1: usize,
                 y1: usize,
                 x2: usize,
                 y2: usize,
-                board: &mut Vec<Vec<i64>>,
+                board: &mut Array2<i64>,
                 rows: &mut Vec<i64>,
                 cols: &mut Vec<i64>,
                 diags: &mut Vec<i64>,
@@ -93,43 +94,43 @@ fn swap_nubmers(x1: usize,
 
     // diagonals
     if x1 == y1 {
-        diags[0] -= board[x1][y1];
+        diags[0] -= board[(x1, y1)];
     }
     if x1 + y1 == n - 1 {
-        diags[1] -= board[x1][y1];
+        diags[1] -= board[(x1, y1)];
     }
     if x2 == y2 {
-        diags[0] -= board[x2][y2];
+        diags[0] -= board[(x2, y2)];
     }
     if x2 + y2 == n - 1 {
-        diags[1] -= board[x2][y2];
+        diags[1] -= board[(x2, y2)];
     }
 
-    rows[x1] -= board[x1][y1];
-    rows[x2] -= board[x2][y2];
-    cols[y1] -= board[x1][y1];
-    cols[y2] -= board[x2][y2];
+    rows[x1] -= board[(x1, y1)];
+    rows[x2] -= board[(x2, y2)];
+    cols[y1] -= board[(x1, y1)];
+    cols[y2] -= board[(x2, y2)];
 
-    let tmp = board[x1][y1];
-    board[x1][y1] = board[x2][y2];
-    board[x2][y2] = tmp;
+    let tmp = board[(x1, y1)];
+    board[(x1, y1)] = board[(x2, y2)];
+    board[(x2, y2)] = tmp;
 
-    rows[x1] += board[x1][y1];
-    rows[x2] += board[x2][y2];
-    cols[y1] += board[x1][y1];
-    cols[y2] += board[x2][y2];
+    rows[x1] += board[(x1, y1)];
+    rows[x2] += board[(x2, y2)];
+    cols[y1] += board[(x1, y1)];
+    cols[y2] += board[(x2, y2)];
 
     if x1 == y1 {
-        diags[0] += board[x1][y1];
+        diags[0] += board[(x1, y1)];
     }
     if x1 + y1 == n - 1 {
-        diags[1] += board[x1][y1];
+        diags[1] += board[(x1, y1)];
     }
     if x2 == y2 {
-        diags[0] += board[x2][y2];
+        diags[0] += board[(x2, y2)];
     }
     if x2 + y2 == n - 1 {
-        diags[1] += board[x2][y2];
+        diags[1] += board[(x2, y2)];
     }
 
     new_score += score_sum(&rows[x1], &ni);
@@ -151,7 +152,7 @@ fn score_vector(v: &Vec<i64>, n: &i64) -> i64 {
     v.iter().map(|x| score_sum(x, n)).sum()
 }
 
-fn initial_score(board: &mut Vec<Vec<i64>>,
+fn initial_score(board: &mut Array2<i64>,
                  rows: &mut Vec<i64>,
                  cols: &mut Vec<i64>,
                  diags: &mut Vec<i64>,
@@ -161,27 +162,21 @@ fn initial_score(board: &mut Vec<Vec<i64>>,
     for i in 0..*n {
         for j in 0..*n {
             if i == j {
-                diags[0] += board[i][j];
+                diags[0] += board[(i, j)];
             }
             if i + j == n - 1 {
-                diags[1] += board[i][j];
+                diags[1] += board[(i, j)];
             }
-            rows[i] += board[i][j];
-            cols[j] += board[i][j];
+            rows[i] += board[(i, j)];
+            cols[j] += board[(i, j)];
         }
     }
     score_vector(&rows, &ni) + score_vector(&cols, &ni) + score_vector(&diags, &ni)
 }
 
-fn make_board(rng: &mut ThreadRng, n: &usize) -> Vec<Vec<i64>> {
+fn make_board(rng: &mut XorShiftRng, n: &usize) -> Array2<i64> {
     let ni = *n as i64;
     let mut numbers: Vec<i64> = (1..ni * ni + 1).collect();
     rng.shuffle(numbers.as_mut_slice());
-    let mut result: Vec<Vec<i64>> = vec![vec![0; *n]; *n];
-    for i in 0..*n {
-        for j in 0..*n {
-            result[i][j] = numbers[i + n * j];
-        }
-    }
-    result
+    Array::from_shape_vec((*n, *n), numbers).unwrap()
 }

@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use ndarray::Array2;
 
 /// Solve magic squares problem.
 ///
@@ -12,15 +13,13 @@ use std::collections::HashSet;
 #[derive(Debug)]
 pub struct MagicSquare {
     pub size: usize,
-    pub numbers: Vec<Vec<i64>>,
+    pub numbers: Array2<i64>,
 }
 
 impl MagicSquare {
-    pub fn new(numbers: Vec<Vec<i64>>) -> Result<MagicSquare, String> {
-        let n = numbers.len();
-        for i in 0..n {
-            try_eq!(numbers[i].len(), n);
-        }
+    pub fn new(numbers: Array2<i64>) -> Result<MagicSquare, String> {
+        let n = numbers.shape()[0];
+        try_eq!(numbers.shape()[1], n);
         let mut rows = vec![0; n];
         let mut cols = vec![0; n];
         let mut numbers_set = HashSet::new();
@@ -29,12 +28,12 @@ impl MagicSquare {
         let e_sum = ((n * (n * n + 1)) / 2) as i64;
         for i in 0..n {
             for j in 0..n {
-                rows[i] += numbers[i][j];
-                cols[j] += numbers[i][j];
-                numbers_set.insert(numbers[i][j]);
+                rows[i] += numbers[(i, j)];
+                cols[j] += numbers[(i, j)];
+                numbers_set.insert(numbers[(i, j)]);
             }
-            d_1 += numbers[i][i];
-            d_2 += numbers[n - i - 1][i];
+            d_1 += numbers[(i, i)];
+            d_2 += numbers[(n - i - 1, i)];
         }
         try_eq!(d_1, e_sum);
         try_eq!(d_2, e_sum);
