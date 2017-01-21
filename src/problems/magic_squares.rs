@@ -9,7 +9,6 @@ use ndarray::Array2;
 /// is the same.
 ///
 /// Hint: use hill climbing.
-
 #[derive(Debug)]
 pub struct MagicSquare {
     pub size: usize,

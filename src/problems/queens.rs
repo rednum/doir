@@ -5,11 +5,10 @@ use std::collections::HashSet;
 /// Given integer N generate chessboard containing
 /// N queens such that none pair of queens attacks
 /// each other. The Board datastructure expects
-/// a set of queens positions on the board 
+/// a set of queens positions on the board
 /// (see tests/queens.rs).
 ///
 /// Hint: use hill climbing.
-
 #[derive(Debug)]
 pub struct Board {
     pub size: usize,
